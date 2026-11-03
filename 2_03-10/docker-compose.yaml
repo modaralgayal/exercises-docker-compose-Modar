@@ -1,21 +1,28 @@
-services: 
-  backend: 
+services:
+  backend:
+
     image: modaralgayal/backend
-    environment: 
+    depends_on:
+      - cache
+    environment:
       - REQUEST_ORIGIN=http://localhost:5001
-    ports: 
+      - REDIS_HOST=cache  ## Took me a while but damn that's pretty easy. 
+      - REDIS_PORT=6379
+    ports:
       - 8080:8080
-    command: ./server 
+    command: ./server
 
   frontend:
     image: modaralgayal/frontend
+
     environment:
       - REACT_APP_BACKEND_URL=http://localhost:8080
-    ports: 
-      - 5001:5001 
+    ports:
+      - 5001:5001
     command: serve -s -l 5001 build
-    
-  
-  
-    
-    
+
+  cache:
+    image: redis:latest
+    restart: unless-stopped
+    command: redis-server
+
