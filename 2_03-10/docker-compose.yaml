@@ -1,13 +1,25 @@
 services:
-  backend:
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: dbpassword123
+      
+    container_name: db
 
+  backend:
     image: modaralgayal/backend
     depends_on:
+      - db
       - cache
     environment:
       - REQUEST_ORIGIN=http://localhost:5001
-      - REDIS_HOST=cache  ## Took me a while but damn that's pretty easy. 
+      - REDIS_HOST=cache ## Took me a while but damn that's pretty easy. I also overcomplicated this
       - REDIS_PORT=6379
+      - POSTGRES_HOST=db
+      - POSTGRES_DATABASE=postgres
+      - POSTGRES_PASSWORD=dbpassword123
     ports:
       - 8080:8080
     command: ./server
@@ -25,4 +37,3 @@ services:
     image: redis:latest
     restart: unless-stopped
     command: redis-server
-
